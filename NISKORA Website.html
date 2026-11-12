@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NISKORA | Strategy. Design. Technology.</title>
+<meta name="description" content="NISKORA is a consulting and digital solutions company for startups and growing businesses in India.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;700;800&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #000000;
+    --black-2: #0B0B0B;
+    --black-3: #161616;
+    --silver: #C0C0C0;
+    --silver-dim: rgba(192, 192, 192, .55);
+    --silver-line: rgba(192, 192, 192, .16);
+    --yellow: #FFD60A;
+    --display: "Unbounded", "Arial Black", sans-serif;
+    --body: "Figtree", system-ui, sans-serif;
+    --pad: clamp(20px, 5vw, 72px);
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; scroll-padding-top: 88px; }
+  body { background: var(--black); color: var(--silver); font-family: var(--body); font-size: 1.0625rem; line-height: 1.65; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+  img, svg { display: block; max-width: 100%; }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--yellow); outline-offset: 3px; }
+  .skip { position: absolute; left: -999px; top: 0; background: var(--yellow); color: var(--black); padding: 10px 16px; z-index: 100; }
+  .skip:focus { left: 16px; top: 16px; }
+
+  .progress { position: fixed; top: 0; left: 0; height: 2px; width: 100%; background: var(--yellow); transform-origin: 0 50%; transform: scaleX(0); z-index: 60; }
+
+  /* Header */
+  header { position: fixed; top: 0; left: 0; right: 0; z-index: 50; background: rgba(0,0,0,.92); backdrop-filter: blur(8px); border-bottom: 1px solid transparent; transition: border-color .3s; }
+  header.scrolled { border-bottom-color: var(--silver-line); }
+  .bar { display: flex; align-items: center; justify-content: space-between; padding: 16px var(--pad); padding-top: calc(16px + env(safe-area-inset-top, 0px)); }
+  .logo { font-family: var(--display); font-weight: 800; letter-spacing: .08em; font-size: 1.05rem; color: var(--silver); }
+  .logo b { color: var(--yellow); font-weight: 800; }
+  nav.main { display: flex; align-items: center; gap: 30px; font-size: .95rem; }
+  nav.main a { position: relative; color: var(--silver-dim); transition: color .2s; padding: 4px 0; }
+  nav.main a:hover, nav.main a.active { color: var(--silver); }
+  nav.main a.active::after, nav.main a:hover::after { content: ""; position: absolute; left: 0; right: 0; bottom: -2px; height: 2px; background: var(--yellow); }
+  .menu-btn { display: none; background: none; border: 1px solid var(--silver-line); width: 44px; height: 44px; cursor: pointer; align-items: center; justify-content: center; }
+  .menu-btn span, .menu-btn span::before, .menu-btn span::after { display: block; width: 18px; height: 2px; background: var(--silver); position: relative; }
+  .menu-btn span::before, .menu-btn span::after { content: ""; position: absolute; left: 0; }
+  .menu-btn span::before { top: -6px; } .menu-btn span::after { top: 6px; }
+
+  main { position: relative; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 15px 26px; font-weight: 700; font-size: .98rem; border: 1.5px solid var(--silver); border-radius: 2px; cursor: pointer; background: transparent; color: var(--silver); transition: background .25s, color .25s, border-color .25s, transform .25s; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn-yellow { background: var(--yellow); border-color: var(--yellow); color: var(--black); }
+  .btn-yellow:hover { box-shadow: 0 12px 28px -12px rgba(255,214,10,.7); }
+  .btn-silver:hover { background: var(--silver); color: var(--black); }
+
+  /* Hero */
+  .hero { position: relative; min-height: 100vh; min-height: 100svh; display: grid; align-content: center; padding: 130px var(--pad) 90px; overflow: hidden; background-image: linear-gradient(var(--silver-line) 1px, transparent 1px), linear-gradient(90deg, var(--silver-line) 1px, transparent 1px); background-size: 60px 60px; }
+  .hero::after { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 40%, transparent 0%, var(--black) 75%); pointer-events: none; }
+  #net { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+  .hero-inner { position: relative; z-index: 1; }
+  .eyebrow-yellow { display: inline-block; width: 48px; height: 3px; background: var(--yellow); margin-bottom: 28px; }
+  .hero h1 { font-family: var(--display); font-weight: 800; font-size: clamp(2.5rem, 8vw, 7rem); line-height: 1; letter-spacing: -.02em; max-width: 14ch; color: var(--silver); }
+  .hero h1 .y { color: var(--yellow); }
+  .line { display: block; overflow: hidden; padding-bottom: .06em; }
+  .line > span { display: inline-block; transform: translateY(105%); animation: rise 1s cubic-bezier(.2,.7,.1,1) forwards; }
+  .line:nth-child(2) > span { animation-delay: .12s; }
+  .line:nth-child(3) > span { animation-delay: .24s; }
+  @keyframes rise { to { transform: none; } }
+  .hero-sub { margin-top: 32px; max-width: 50ch; color: var(--silver-dim); opacity: 0; animation: fade .9s .6s forwards; }
+  .hero-cta { margin-top: 40px; display: flex; gap: 14px; flex-wrap: wrap; opacity: 0; animation: fade .9s .8s forwards; }
+  @keyframes fade { to { opacity: 1; } }
+
+  .stats { display: flex; gap: 48px; flex-wrap: wrap; margin-top: 64px; padding-top: 28px; border-top: 1px solid var(--silver-line); max-width: 640px; }
+  .stats div { font-size: .9rem; color: var(--silver-dim); }
+  .stats strong { display: block; font-family: var(--display); font-size: 1.25rem; color: var(--yellow); font-weight: 700; }
+
+  /* Ticker */
+  .ticker { background: var(--yellow); color: var(--black); overflow: hidden; white-space: nowrap; padding: 18px 0; }
+  .track { display: inline-flex; animation: slide 30s linear infinite; font-family: var(--display); font-weight: 700; font-size: 1rem; text-transform: none; }
+  .track span { padding-right: 40px; }
+  .track span::after { content: "/"; padding-left: 40px; }
+  .ticker:hover .track { animation-play-state: paused; }
+  @keyframes slide { to { transform: translateX(-50%); } }
+
+  section.block { padding: clamp(80px, 11vw, 150px) var(--pad); }
+  .alt { background: var(--black-2); }
+  .head { display: flex; justify-content: space-between; align-items: end; gap: 32px; flex-wrap: wrap; margin-bottom: 56px; }
+  .section-title { font-family: var(--display); font-weight: 700; font-size: clamp(1.8rem, 4vw, 3rem); line-height: 1.12; letter-spacing: -.01em; color: var(--silver); max-width: 20ch; }
+  .lead { color: var(--silver-dim); max-width: 44ch; }
+
+  .about { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 96px); }
+  .about p { color: var(--silver-dim); max-width: 56ch; }
+  .about p + p { margin-top: 1.1em; }
+  .values { margin-top: 36px; display: grid; gap: 0; border-top: 1px solid var(--silver-line); }
+  .values div { padding: 18px 0; border-bottom: 1px solid var(--silver-line); display: flex; gap: 18px; }
+  .values strong { color: var(--silver); min-width: 130px; font-weight: 700; }
+  .values span { color: var(--silver-dim); }
+
+  /* Services */
+  .services { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--silver-line); border: 1px solid var(--silver-line); }
+  .svc { position: relative; overflow: hidden; background: var(--black); padding: 40px 34px; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; gap: 36px; transition: background .3s; }
+  .svc::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(240px circle at var(--mx, -999px) var(--my, -999px), rgba(255,214,10,.18), transparent 70%); opacity: 0; transition: opacity .35s; }
+  .svc:hover::before { opacity: 1; }
+  .svc .tag { font-size: .8rem; font-weight: 700; color: var(--yellow); letter-spacing: .02em; }
+  .svc h3 { font-family: var(--display); font-weight: 700; font-size: 1.2rem; color: var(--silver); margin-top: 12px; }
+  .svc p { color: var(--silver-dim); }
+  .svc ul { list-style: none; margin-top: 14px; font-size: .95rem; color: var(--silver-dim); }
+  .svc li { padding: 4px 0; }
+  .svc li::before { content: "- "; color: var(--yellow); }
+
+  /* Process */
+  .process { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px; position: relative; }
+  .process::before { content: ""; position: absolute; top: 9px; left: 0; right: 0; height: 1px; background: var(--silver-line); }
+  .process::after { content: ""; position: absolute; top: 9px; left: 0; right: 0; height: 1px; background: var(--yellow); transform: scaleX(var(--draw, 0)); transform-origin: 0 50%; transition: transform 1.8s cubic-bezier(.3,.6,.2,1); }
+  .step { position: relative; padding-top: 44px; }
+  .step::before { content: ""; position: absolute; top: 2px; left: 0; width: 17px; height: 17px; background: var(--black); border: 2px solid var(--yellow); border-radius: 50%; }
+  .step h3 { font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: var(--silver); margin-bottom: 10px; }
+  .step p { color: var(--silver-dim); font-size: .98rem; }
+
+  /* Team */
+  .team { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+  .person { background: var(--black-3); padding: 32px 28px; border-top: 3px solid var(--silver); }
+  .person h3 { font-family: var(--display); font-weight: 700; font-size: 1.05rem; color: var(--silver); }
+  .person .role { color: var(--yellow); font-weight: 600; font-size: .95rem; margin: 6px 0 14px; }
+  .person p { color: var(--silver-dim); font-size: .98rem; }
+
+  /* FAQ */
+  .faq { display: grid; grid-template-columns: 1fr 1.4fr; gap: clamp(32px, 6vw, 96px); }
+  details { border-bottom: 1px solid var(--silver-line); }
+  details:first-child { border-top: 1px solid var(--silver-line); }
+  summary { cursor: pointer; list-style: none; padding: 22px 40px 22px 0; position: relative; color: var(--silver); font-weight: 600; font-size: 1.05rem; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; position: absolute; right: 4px; top: 18px; font-size: 1.5rem; color: var(--yellow); transition: transform .3s; }
+  details[open] summary::after { transform: rotate(45deg); }
+  details p { padding: 0 40px 24px 0; color: var(--silver-dim); }
+
+  /* Contact */
+  .contact { display: grid; grid-template-columns: 1fr 1.2fr; gap: clamp(32px, 6vw, 96px); }
+  .contact-info p { color: var(--silver-dim); margin-bottom: 28px; max-width: 42ch; }
+  .info-row { padding: 16px 0; border-top: 1px solid var(--silver-line); }
+  .info-row strong { display: block; color: var(--silver); font-size: .9rem; }
+  .info-row a, .info-row span { color: var(--silver-dim); }
+  .info-row a:hover { color: var(--yellow); }
+  form { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .field { display: flex; flex-direction: column; gap: 8px; }
+  .field.full { grid-column: 1 / -1; }
+  label { font-size: .9rem; font-weight: 600; color: var(--silver); }
+  input, select, textarea { background: var(--black); border: 1px solid var(--silver-line); border-radius: 2px; padding: 14px 16px; width: 100%; transition: border-color .2s; }
+  select option { background: var(--black); }
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--yellow); }
+  input::placeholder, textarea::placeholder { color: rgba(192,192,192,.4); }
+  textarea { min-height: 140px; resize: vertical; }
+  .err { color: var(--yellow); font-size: .85rem; min-height: 1em; }
+  .form-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  .form-note { color: var(--silver-dim); font-size: .9rem; }
+  .sent { grid-column: 1 / -1; display: none; border: 1px solid var(--yellow); padding: 18px 20px; color: var(--silver); }
+  .sent.show { display: block; }
+
+  footer { background: var(--black-2); border-top: 1px solid var(--silver-line); padding: 64px var(--pad) 32px; }
+  .foot-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; }
+  .foot-grid h4 { font-size: .9rem; color: var(--silver); margin-bottom: 14px; font-weight: 700; }
+  .foot-grid a, .foot-grid p { display: block; color: var(--silver-dim); font-size: .95rem; margin-bottom: 8px; }
+  .foot-grid a:hover { color: var(--yellow); }
+  .foot-base { margin-top: 48px; padding-top: 22px; border-top: 1px solid var(--silver-line); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: .88rem; color: var(--silver-dim); }
+
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s cubic-bezier(.2,.7,.1,1); }
+  .reveal.in { opacity: 1; transform: none; }
+
+  /* Responsive */
+  @media (max-width: 960px) {
+    .menu-btn { display: inline-flex; }
+    nav.main { position: fixed; top: 0; right: 0; bottom: 0; width: min(300px, 82vw); background: var(--black-2); flex-direction: column; align-items: flex-start; padding: 100px 32px; gap: 26px; transform: translateX(100%); transition: transform .35s ease; border-left: 1px solid var(--silver-line); }
+    nav.main.open { transform: none; }
+    nav.main a { font-size: 1.1rem; color: var(--silver); }
+    .about, .faq, .contact { grid-template-columns: 1fr; }
+    .services { grid-template-columns: 1fr 1fr; }
+    .process { grid-template-columns: 1fr 1fr; row-gap: 40px; }
+    .process::before, .process::after { display: none; }
+    .team { grid-template-columns: 1fr; }
+    .foot-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) {
+    .services, .process { grid-template-columns: 1fr; }
+    form { grid-template-columns: 1fr; }
+    .stats { gap: 28px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    .line > span, .hero-sub, .hero-cta { transform: none; opacity: 1; }
+    .reveal { opacity: 1; transform: none; }
+    #net { display: none; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="progress" id="progress"></div>
+
+<header id="site-header">
+  <div class="bar">
+    <a class="logo" href="#top">NISKOR<b>A</b></a>
+    <nav class="main" id="nav" aria-label="Main">
+      <a href="#about">About</a>
+      <a href="#services">Services</a>
+      <a href="#process">Process</a>
+      <a href="#team">Team</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contact" class="btn btn-yellow" style="padding:10px 18px;color:var(--black)">Get in touch</a>
+    </nav>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="nav"><span></span></button>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero" id="top">
+    <canvas id="net" aria-hidden="true"></canvas>
+    <div class="hero-inner">
+      <span class="eyebrow-yellow" aria-hidden="true"></span>
+      <h1>
+        <span class="line"><span>Strategy.</span></span>
+        <span class="line"><span>Design.</span></span>
+        <span class="line"><span class="y">Technology.</span></span>
+      </h1>
+      <p class="hero-sub">NISKORA is a consulting and digital solutions company. We help startups and growing businesses in India plan, build and run their websites, brands and technology.</p>
+      <div class="hero-cta">
+        <a class="btn btn-yellow" href="#contact">Start a project</a>
+        <a class="btn btn-silver" href="#services">View services</a>
+      </div>
+      <div class="stats">
+        <div><strong>4</strong>service divisions</div>
+        <div><strong>3</strong>founding partners</div>
+        <div><strong>Remote-first</strong>with on-site meetings in Chennai</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="ticker" aria-hidden="true">
+    <div class="track">
+      <span>Web design and development</span><span>Branding and creative</span><span>Business consulting</span><span>IT solutions</span><span>Automation</span>
+      <span>Web design and development</span><span>Branding and creative</span><span>Business consulting</span><span>IT solutions</span><span>Automation</span>
+    </div>
+  </div>
+
+  <section id="about" class="block">
+    <div class="about">
+      <div class="reveal">
+        <h2 class="section-title">Building businesses. Creating possibilities.</h2>
+      </div>
+      <div class="reveal">
+        <p>Most young businesses do not need a bigger team. They need partners who can connect the plan, the product and the technology so that each one supports the others.</p>
+        <p>We work with founders and small teams across strategy, brand, web and technical implementation, and stay involved until the work is running well.</p>
+        <div class="values">
+          <div><strong>Clear scope</strong><span>Written proposals with fixed deliverables and timelines.</span></div>
+          <div><strong>Direct access</strong><span>You work with the founders, not a rotating account team.</span></div>
+          <div><strong>Documented handover</strong><span>You receive code, designs and notes you can keep.</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="block alt">
+    <div class="head reveal">
+      <h2 class="section-title">Four divisions. One team.</h2>
+      <p class="lead">Each division can work on its own or together on a single project.</p>
+    </div>
+    <div class="services">
+      <article class="svc reveal">
+        <div>
+          <p class="tag">NISKORA Digital</p>
+          <h3>Web design and development</h3>
+          <ul><li>Business websites</li><li>Web applications</li><li>Landing pages</li></ul>
+        </div>
+        <p>Fast, clear websites built to load quickly and turn visitors into enquiries.</p>
+      </article>
+      <article class="svc reveal">
+        <div>
+          <p class="tag">NISKORA Creative</p>
+          <h3>Branding and creative</h3>
+          <ul><li>Brand identity</li><li>Logo and visual systems</li><li>Presentations and collateral</li></ul>
+        </div>
+        <p>Names, identities and visual systems that make a business easy to recognise.</p>
+      </article>
+      <article class="svc reveal">
+        <div>
+          <p class="tag">NISKORA Consulting</p>
+          <h3>Business consulting</h3>
+          <ul><li>Business planning</li><li>Market and operations review</li><li>Growth strategy</li></ul>
+        </div>
+        <p>Practical advice grounded in your numbers and your market.</p>
+      </article>
+      <article class="svc reveal">
+        <div>
+          <p class="tag">NISKORA Technologies</p>
+          <h3>IT solutions and automation</h3>
+          <ul><li>Technology implementation</li><li>Software integration</li><li>Workflow automation</li></ul>
+        </div>
+        <p>Systems that connect your tools and remove repetitive work.</p>
+      </article>
+      <article class="svc reveal">
+        <div>
+          <p class="tag">Ongoing</p>
+          <h3>Retainer support</h3>
+          <ul><li>Monthly maintenance</li><li>Priority requests</li><li>Regular reporting</li></ul>
+        </div>
+        <p>A fixed monthly arrangement for businesses that need steady support.</p>
+      </article>
+      <article class="svc reveal">
+        <div>
+          <p class="tag">Start here</p>
+          <h3>Discovery call</h3>
+          <ul><li>30-minute call</li><li>Written summary</li><li>No obligation</li></ul>
+        </div>
+        <p>Tell us what you need and we will recommend the next step, whether or not you hire us.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="process" class="block">
+    <div class="head reveal">
+      <h2 class="section-title">How we work</h2>
+      <p class="lead">A simple four-step process used on every project.</p>
+    </div>
+    <div class="process" id="processLine">
+      <div class="step reveal">
+        <h3>Discover</h3>
+        <p>We learn your goals, customers and constraints before proposing anything.</p>
+      </div>
+      <div class="step reveal">
+        <h3>Propose</h3>
+        <p>You receive a written scope, timeline and fixed price.</p>
+      </div>
+      <div class="step reveal">
+        <h3>Build</h3>
+        <p>We work in short cycles and share progress every week.</p>
+      </div>
+      <div class="step reveal">
+        <h3>Support</h3>
+        <p>We hand over documented work and stay available afterwards.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="team" class="block alt">
+    <div class="head reveal">
+      <h2 class="section-title">The founders</h2>
+      <p class="lead">Three partners, each responsible for one part of the business.</p>
+    </div>
+    <div class="team">
+      <article class="person reveal">
+        <h3>Kanishk Jayachandru</h3>
+        <p class="role">Managing Founder</p>
+        <p>Leads strategy, client relationships and day-to-day coordination across projects.</p>
+      </article>
+      <article class="person reveal">
+        <h3>Ram Surya Kannan</h3>
+        <p class="role">Technology</p>
+        <p>Owns web development, technical implementation and quality on every delivery.</p>
+      </article>
+      <article class="person reveal">
+        <h3>Bhasitha Pulipaka</h3>
+        <p class="role">Business Development</p>
+        <p>Builds partnerships, leads sales and keeps client conversations moving.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="faq" class="block">
+    <div class="faq">
+      <div class="reveal">
+        <h2 class="section-title">Questions</h2>
+        <p class="lead" style="margin-top:18px">If yours is not here, send it through the contact form.</p>
+      </div>
+      <div class="reveal">
+        <details>
+          <summary>How much does a website cost?</summary>
+          <p>It depends on scope. After the discovery call we send a written fixed-price proposal before any work starts.</p>
+        </details>
+        <details>
+          <summary>How long does a project take?</summary>
+          <p>A standard business website usually takes three to five weeks. Larger systems are scheduled in the proposal.</p>
+        </details>
+        <details>
+          <summary>Do you work with clients outside Chennai?</summary>
+          <p>Yes. We work remotely across India and with international clients, with video calls and shared progress updates.</p>
+        </details>
+        <details>
+          <summary>Who owns the work after delivery?</summary>
+          <p>You do. Designs, code and documentation are handed over to you at the end of the project.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact" class="block alt">
+    <div class="contact">
+      <div class="contact-info reveal">
+        <h2 class="section-title" style="margin-bottom:24px">Start a conversation</h2>
+        <p>Tell us about your business and what you need. We reply within two working days.</p>
+        <div class="info-row"><strong>Email</strong><a href="mailto:hello@niskora.example">hello@niskora.example</a></div>
+        <div class="info-row"><strong>Phone</strong><a href="tel:+910000000000">+91 00000 00000</a></div>
+        <div class="info-row"><strong>Office</strong><span>Chennai, Tamil Nadu, India</span></div>
+        <div class="info-row"><strong>Hours</strong><span>Monday to Friday, 10:00 to 18:00 IST</span></div>
+      </div>
+
+      <form id="contactForm" class="reveal" novalidate>
+        <div class="field">
+          <label for="name">Full name</label>
+          <input id="name" name="name" autocomplete="name" placeholder="Your name" required>
+          <div class="err" id="err-name"></div>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" autocomplete="email" placeholder="you@company.com" required>
+          <div class="err" id="err-email"></div>
+        </div>
+        <div class="field">
+          <label for="company">Company</label>
+          <input id="company" name="company" autocomplete="organization" placeholder="Company name">
+        </div>
+        <div class="field">
+          <label for="service">Service needed</label>
+          <select id="service" name="service">
+            <option value="">Select one</option>
+            <option>Web design and development</option>
+            <option>Branding and creative</option>
+            <option>Business consulting</option>
+            <option>IT solutions and automation</option>
+            <option>Retainer support</option>
+            <option>Not sure yet</option>
+          </select>
+        </div>
+        <div class="field full">
+          <label for="message">Project details</label>
+          <textarea id="message" name="message" placeholder="What are you building, and what would success look like?" required></textarea>
+          <div class="err" id="err-message"></div>
+        </div>
+        <div class="form-foot">
+          <button class="btn btn-yellow" type="submit">Send enquiry</button>
+          <span class="form-note">Opens your email app with your details filled in.</span>
+        </div>
+        <div class="sent" id="sent" role="status">Thank you. Your email app should have opened with your enquiry. If it did not, write to hello@niskora.example directly.</div>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-grid">
+    <div>
+      <a class="logo" href="#top" style="margin-bottom:16px;display:inline-block">NISKOR<b>A</b></a>
+      <p style="margin-top:10px;max-width:34ch">Strategy. Design. Technology. A consulting and digital solutions company in Chennai, India.</p>
+    </div>
+    <div>
+      <h4>Services</h4>
+      <a href="#services">Web development</a>
+      <a href="#services">Branding</a>
+      <a href="#services">Consulting</a>
+      <a href="#services">IT solutions</a>
+    </div>
+    <div>
+      <h4>Company</h4>
+      <a href="#about">About</a>
+      <a href="#team">Founders</a>
+      <a href="#process">Process</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div>
+      <h4>Contact</h4>
+      <a href="mailto:hello@niskora.example">hello@niskora.example</a>
+      <a href="tel:+910000000000">+91 00000 00000</a>
+      <a href="#contact">Start a project</a>
+    </div>
+  </div>
+  <div class="foot-base">
+    <span>&copy; 2026 NISKORA. All rights reserved.</span>
+    <span>Privacy &middot; Terms</span>
+  </div>
+</footer>
+
+<script>
+  // Header state, progress bar, mobile menu
+  const header = document.getElementById('site-header');
+  const bar = document.getElementById('progress');
+  const onScroll = () => {
+    header.classList.toggle('scrolled', scrollY > 10);
+    const max = document.documentElement.scrollHeight - innerHeight;
+    bar.style.transform = `scaleX(${max > 0 ? scrollY / max : 0})`;
+  };
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  const menuBtn = document.getElementById('menuBtn');
+  const nav = document.getElementById('nav');
+  const setMenu = (open) => {
+    nav.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', open);
+    menuBtn.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  };
+  menuBtn.addEventListener('click', () => setMenu(!nav.classList.contains('open')));
+  nav.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+
+  // Highlight the section in view
+  const navLinks = [...nav.querySelectorAll('a[href^="#"]:not(.btn)')];
+  const secIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  document.querySelectorAll('main section[id]').forEach(s => secIO.observe(s));
+
+  // Reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  const proc = document.getElementById('processLine');
+  const procIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { proc.style.setProperty('--draw', 1); procIO.disconnect(); } });
+  }, { threshold: 0.4 });
+  procIO.observe(proc);
+
+  // Cursor spotlight on service cards
+  document.querySelectorAll('.svc').forEach(card => {
+    card.addEventListener('pointermove', (e) => {
+      const r = card.getBoundingClientRect();
+      card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    });
+  });
+
+  // Contact form: validate, then open the email app with the details filled in
+  const form = document.getElementById('contactForm');
+  const fields = {
+    name: v => v.trim().length >= 2 || 'Please enter your name.',
+    email: v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()) || 'Please enter a valid email address.',
+    message: v => v.trim().length >= 10 || 'Please add a few details (at least 10 characters).'
+  };
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    let ok = true;
+    for (const [id, check] of Object.entries(fields)) {
+      const el = document.getElementById(id);
+      const res = check(el.value);
+      document.getElementById('err-' + id).textContent = res === true ? '' : res;
+      if (res !== true) { ok = false; if (ok === false && !document.activeElement.matches(':focus')) el.focus(); }
+    }
+    if (!ok) return;
+    const d = new FormData(form);
+    const body = [
+      'Name: ' + d.get('name'),
+      'Email: ' + d.get('email'),
+      'Company: ' + (d.get('company') || '-'),
+      'Service: ' + (d.get('service') || '-'),
+      '',
+      d.get('message')
+    ].join('\n');
+    const subject = 'New enquiry from ' + d.get('name') + (d.get('company') ? ' (' + d.get('company') + ')' : '');
+    location.href = 'mailto:hello@niskora.example?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    document.getElementById('sent').classList.add('show');
+    form.reset();
+  });
+
+  // Hero network: silver nodes, yellow near the pointer
+  (function network() {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const canvas = document.getElementById('net');
+    const ctx = canvas.getContext('2d');
+    const hero = canvas.parentElement;
+    let w, h, dpr, nodes = [];
+    const mouse = { x: -9999, y: -9999 };
+    function size() {
+      dpr = Math.min(devicePixelRatio || 1, 2);
+      w = hero.clientWidth; h = hero.clientHeight;
+      canvas.width = w * dpr; canvas.height = h * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const count = Math.round(Math.min(80, (w * h) / 18000));
+      nodes = Array.from({ length: count }, () => ({
+        x: Math.random() * w, y: Math.random() * h,
+        vx: (Math.random() - .5) * .3, vy: (Math.random() - .5) * .3,
+        r: Math.random() * 1.5 + .6
+      }));
+    }
+    hero.addEventListener('pointermove', (e) => {
+      const r = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top;
+    });
+    hero.addEventListener('pointerleave', () => { mouse.x = mouse.y = -9999; });
+    const link = 130;
+    function frame() {
+      ctx.clearRect(0, 0, w, h);
+      for (const n of nodes) {
+        const dx = n.x - mouse.x, dy = n.y - mouse.y;
+        const d = Math.hypot(dx, dy);
+        if (d < 150 && d > 0) { n.x += (dx / d) * .5; n.y += (dy / d) * .5; }
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        const a = nodes[i];
+        for (let j = i + 1; j < nodes.length; j++) {
+          const b = nodes[j];
+          const d = Math.hypot(a.x - b.x, a.y - b.y);
+          if (d < link) {
+            ctx.strokeStyle = `rgba(192,192,192,${(1 - d / link) * .22})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+        const near = Math.hypot(a.x - mouse.x, a.y - mouse.y) < 150;
+        ctx.fillStyle = near ? '#FFD60A' : 'rgba(192,192,192,.7)';
+        ctx.beginPath(); ctx.arc(a.x, a.y, a.r, 0, Math.PI * 2); ctx.fill();
+      }
+      requestAnimationFrame(frame);
+    }
+    size();
+    addEventListener('resize', size);
+    frame();
+  })();
+</script>
+</body>
+</html>
